@@ -8,6 +8,7 @@ public enum ApiStatus {
     OK(HttpStatus.OK),
     BAD_REQUEST(HttpStatus.BAD_REQUEST),
     NOT_FOUND(HttpStatus.NOT_FOUND),
+    DELETED(HttpStatus.NO_CONTENT),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final HttpStatus httpStatus;
