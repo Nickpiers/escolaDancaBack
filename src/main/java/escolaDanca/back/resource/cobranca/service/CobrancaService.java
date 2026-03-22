@@ -1,10 +1,18 @@
 package escolaDanca.back.resource.cobranca.service;
 
+import escolaDanca.back.bd.entity.AlunoEntity;
 import escolaDanca.back.bd.entity.CobrancaEntity;
+import escolaDanca.back.bd.entity.MatriculaEntity;
 import escolaDanca.back.bd.repository.CobrancaRepository;
+import escolaDanca.back.bd.repository.MatriculaRepository;
 import escolaDanca.back.domain.dto.cobranca.CobrancaDto;
 import escolaDanca.back.domain.dto.cobranca.ConsultarCobrancaResponseDto;
+import escolaDanca.back.domain.dto.cobranca.CriarCobrancaRequestDto;
+import static escolaDanca.back.domain.enums.StatusPagamento.ABERTO;
+
+import escolaDanca.back.exception.BusinessException;
 import escolaDanca.back.exception.ResourceNotFoundException;
+import escolaDanca.back.utils.MascararCpf;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +20,46 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CobrancaService {
 
     private final CobrancaRepository cobrancaRepository;
+    private final MatriculaRepository matriculaRepository;
+    private static final String URL_LINK_BOLETO = "http://escoladanca/pagamentos/boleto/";
+    private static final String URL_LINK_PIX = "http://escoladanca/pagamentos/pix/";
+
+    public void criarCobranca(CriarCobrancaRequestDto requestDto) {
+
+        final String cpfMascarado = MascararCpf.mascararCpf(requestDto.cpf());
+
+        MatriculaEntity matricula = matriculaRepository.findByAlunoCpf(requestDto.cpf())
+                .orElseThrow(() -> new ResourceNotFoundException("Matricula nao encontrada para cpf: " + cpfMascarado));
+
+        if (cobrancaRepository.existsByCodigoInterno(requestDto.codigoInterno())) {
+            throw new BusinessException("Cobrança ja existe!");
+        }
+
+        CobrancaEntity cobranca = new CobrancaEntity();
+
+        cobranca.setMatricula(matricula);
+        cobranca.setStatusPagamento(ABERTO);
+        cobranca.setValorTotal(requestDto.valorTotal());
+        cobranca.setCriadoEm(LocalDateTime.now());
+        cobranca.setVencimento(LocalDate.now().plusMonths(1));
+
+        String boletoUri = UUID.randomUUID().toString();
+        String pixUri = UUID.randomUUID().toString();
+        cobranca.setLinkBoleto(URL_LINK_BOLETO + boletoUri);
+        cobranca.setLinkPix(URL_LINK_PIX + pixUri);
+
+        cobranca.setCodigoInterno(requestDto.codigoInterno());
+
+        cobrancaRepository.save(cobranca);
+    }
+
 
     public ConsultarCobrancaResponseDto consultarUltimaCobranca(Long idUsuario) {
         CobrancaEntity cobranca = cobrancaRepository

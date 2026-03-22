@@ -10,4 +10,6 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Long
 
     Optional<MatriculaEntity> findByAluno(AlunoEntity aluno);
 
+    Optional<MatriculaEntity> findByAlunoCpf(String cpf);
+
 }

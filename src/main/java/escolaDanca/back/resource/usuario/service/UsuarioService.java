@@ -23,25 +23,32 @@ public class UsuarioService {
 
     public void criarUsuario(CriarUsuarioRequestDto request) {
 
-        String cpfMascarado = MascararCpf.mascararCpf(request.cpf());
+        final String cpfMascarado = MascararCpf.mascararCpf(request.cpf());
+        final boolean isAluno = request.tipoUsuario().equals(Role.ALUNO);
+        AlunoEntity aluno = null;
 
-        AlunoEntity aluno = alunoRepository.findByCpf(request.cpf())
+        if (isAluno) {
+            aluno = alunoRepository.findByCpf(request.cpf())
                 .orElseThrow(() -> new ResourceNotFoundException("Aluno não encontrado com cpf: " + cpfMascarado));
+        }
 
         if (usuarioRepository.existsByCpf(request.cpf())) {
             throw new BusinessException("CPF usuário já cadastrado: " + cpfMascarado);
         }
 
-        String senhaHash = passwordEncoder.encode(request.senha());
+        final String senhaHash = passwordEncoder.encode(request.senha());
 
-        UsuarioEntity usuario = new UsuarioEntity();
-        usuario.setCpf(request.cpf());
-        usuario.setEmail(aluno.getEmail());
+        final UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setEmail(request.email());
         usuario.setSenhaHash(senhaHash);
-        usuario.setTipoUsuario(Role.ALUNO);
         usuario.setAtivo(true);
+        usuario.setTipoUsuario(request.tipoUsuario());
+        usuario.setCpf(request.cpf());
 
-        aluno.setUsuario(usuario);
+        if (isAluno) {
+            aluno.setUsuario(usuario);
+        }
+
         usuarioRepository.save(usuario);
     }
 }
