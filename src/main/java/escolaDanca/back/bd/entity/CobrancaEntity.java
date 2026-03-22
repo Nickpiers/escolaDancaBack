@@ -31,8 +31,8 @@ public class CobrancaEntity {
     @Column(name = "valor_total", nullable = false, precision = 12, scale = 2)
     private BigDecimal valorTotal;
 
-    @Column(name = "valor_pago", precision = 12, scale = 2)
-    private BigDecimal valorPago;
+    @Column(name = "valor_pago", precision = 12, scale = 2, nullable = false)
+    private BigDecimal valorPago = BigDecimal.ZERO;;
 
     @Column(name = "criado_em", nullable = false)
     private LocalDateTime criadoEm;
@@ -48,5 +48,8 @@ public class CobrancaEntity {
 
     @Column(nullable = false)
     private LocalDate vencimento;
+
+    @Column(name = "codigo_interno", nullable = false)
+    private Long codigoInterno;
 }
 

@@ -1,5 +1,6 @@
 package escolaDanca.back.domain.dto.usuario;
 
+import escolaDanca.back.domain.enums.Role;
 import jakarta.validation.constraints.NotBlank;
 
 public record CriarUsuarioRequestDto(
@@ -7,5 +8,11 @@ public record CriarUsuarioRequestDto(
         String cpf,
 
         @NotBlank
-        String senha){
+        String senha,
+
+        @NotBlank
+        String email,
+
+        @NotBlank
+        Role tipoUsuario){
 }

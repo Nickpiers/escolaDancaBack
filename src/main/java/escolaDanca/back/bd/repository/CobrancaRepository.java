@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface CobrancaRepository extends JpaRepository<CobrancaEntity, Long> {
 
+    boolean existsByCodigoInterno(Long codigoInterno);
+    
     Optional<CobrancaEntity> findTopByMatriculaAlunoUsuarioIdUsuarioOrderByCriadoEmDesc(Long idUsuario);
 
     @Query("""

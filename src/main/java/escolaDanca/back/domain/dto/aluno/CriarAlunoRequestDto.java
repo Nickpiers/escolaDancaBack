@@ -19,22 +19,7 @@ public record CriarAlunoRequestDto(
         String telefone,
 
         @NotBlank
-        String plano,
-
-        @NotBlank
         LocalDate dataInicio,
 
-        LocalDate dataTermino,
-
-        String responsavelNome,
-        String responsavelCpf,
-        String responsavelTelefone
-) {
-
-    public boolean temResponsavel() {
-        return responsavelCpf != null && !responsavelCpf.isBlank()
-                && responsavelNome != null && !responsavelNome.isBlank()
-                && responsavelTelefone != null && !responsavelTelefone.isBlank();
-    }
-
+        LocalDate dataTermino) {
 }
