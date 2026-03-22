@@ -4,11 +4,15 @@ import escolaDanca.back.bd.entity.AlunoEntity;
 import escolaDanca.back.bd.entity.MatriculaEntity;
 import escolaDanca.back.bd.repository.AlunoRepository;
 import escolaDanca.back.bd.repository.MatriculaRepository;
+import escolaDanca.back.domain.dto.aluno.AlunoDto;
 import escolaDanca.back.domain.dto.aluno.CriarAlunoRequestDto;
+import escolaDanca.back.domain.dto.aluno.ListarAlunosResponseDto;
 import escolaDanca.back.exception.BusinessException;
 import escolaDanca.back.utils.MascararCpf;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +48,26 @@ public class AlunoService {
         matricula.setStatus("ATIVO");
 
         matriculaRepository.save(matricula);
+    }
+
+    public ListarAlunosResponseDto listarAlunos() {
+        List<AlunoEntity> alunos = alunoRepository.findAllByAtivoTrue();
+
+        List<AlunoDto> alunosDtos = alunos.stream()
+                .map(e -> {
+                    AlunoDto dto = new AlunoDto();
+                    dto.setId(e.getIdAluno());
+                    dto.setNome(e.getNome());
+                    dto.setCpf(e.getCpf());
+
+                    return dto;
+                })
+                .toList();
+
+        ListarAlunosResponseDto response = new ListarAlunosResponseDto();
+        response.setAlunos(alunosDtos);
+        response.setNumeroAlunos(alunosDtos.size());
+
+        return response;
     }
 }
