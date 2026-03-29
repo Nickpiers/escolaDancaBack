@@ -2,6 +2,7 @@ package escolaDanca.back.resource.aluno.controller;
 
 import escolaDanca.back.domain.ApiResponse;
 import escolaDanca.back.domain.ResponseFactory;
+import escolaDanca.back.domain.dto.aluno.ConsultarAlunoResponseDto;
 import escolaDanca.back.domain.dto.aluno.CriarAlunoRequestDto;
 import escolaDanca.back.domain.dto.aluno.ListarAlunosResponseDto;
 import escolaDanca.back.resource.aluno.service.AlunoService;
@@ -34,6 +35,15 @@ public class AlunoController {
         ListarAlunosResponseDto listaAlunos = alunoService.listarAlunos();
         return ResponseEntity.ok().body(
                 ResponseFactory.success(OK.getHttpStatus(), listaAlunos));
+
+    }
+
+    @GetMapping(value = "/consultar/{cpf}")
+    public ResponseEntity<ApiResponse> consultarAluno(@PathVariable String cpf) {
+
+        ConsultarAlunoResponseDto alunoConsultado = alunoService.consultarAluno(cpf);
+        return ResponseEntity.ok().body(
+                ResponseFactory.success(OK.getHttpStatus(), alunoConsultado));
 
     }
 

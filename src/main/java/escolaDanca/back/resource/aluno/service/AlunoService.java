@@ -5,9 +5,13 @@ import escolaDanca.back.bd.entity.MatriculaEntity;
 import escolaDanca.back.bd.repository.AlunoRepository;
 import escolaDanca.back.bd.repository.MatriculaRepository;
 import escolaDanca.back.domain.dto.aluno.AlunoDto;
+import escolaDanca.back.domain.dto.aluno.ConsultarAlunoResponseDto;
 import escolaDanca.back.domain.dto.aluno.CriarAlunoRequestDto;
 import escolaDanca.back.domain.dto.aluno.ListarAlunosResponseDto;
+import escolaDanca.back.domain.dto.cobranca.ConsultarCobrancaResponseDto;
 import escolaDanca.back.exception.BusinessException;
+import escolaDanca.back.exception.ResourceNotFoundException;
+import escolaDanca.back.resource.cobranca.service.CobrancaService;
 import escolaDanca.back.utils.MascararCpf;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,7 @@ public class AlunoService {
 
     private final AlunoRepository alunoRepository;
     private final MatriculaRepository matriculaRepository;
+    private final CobrancaService cobrancaService;
 
     public void criarAluno(CriarAlunoRequestDto request) {
 
@@ -67,6 +72,22 @@ public class AlunoService {
         ListarAlunosResponseDto response = new ListarAlunosResponseDto();
         response.setAlunos(alunosDtos);
         response.setNumeroAlunos(alunosDtos.size());
+
+        return response;
+    }
+
+    public ConsultarAlunoResponseDto consultarAluno(String cpf) {
+
+        String cpfMascarado = MascararCpf.mascararCpf(cpf);
+
+        AlunoEntity aluno = alunoRepository.findByCpf(cpf)
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno nao encontrado: " + cpfMascarado));
+        ConsultarCobrancaResponseDto ultimaCobranca = cobrancaService.consultarUltimaCobranca(aluno.getIdAluno());
+
+        ConsultarAlunoResponseDto response = new ConsultarAlunoResponseDto();
+        response.setId(aluno.getIdAluno());
+        response.setNome(aluno.getNome());
+        response.setUltimaCobranca(ultimaCobranca);
 
         return response;
     }

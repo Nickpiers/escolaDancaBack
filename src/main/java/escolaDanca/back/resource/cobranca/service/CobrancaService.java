@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -61,26 +62,29 @@ public class CobrancaService {
     }
 
 
-    public ConsultarCobrancaResponseDto consultarUltimaCobranca(Long idUsuario) {
-        CobrancaEntity cobranca = cobrancaRepository
-                .findTopByMatriculaAlunoUsuarioIdUsuarioOrderByCriadoEmDesc(idUsuario)
-                .orElseThrow(() -> new ResourceNotFoundException("Nenhuma cobrança encontrada para usuário: " + idUsuario));
+    public ConsultarCobrancaResponseDto consultarUltimaCobranca(Long idAluno) {
+        Optional<CobrancaEntity> cobranca = cobrancaRepository.findTopByMatriculaAlunoIdAlunoOrderByCriadoEmDesc(idAluno);
 
         ConsultarCobrancaResponseDto response = new ConsultarCobrancaResponseDto();
 
-        List<CobrancaDto> cobrancas = new ArrayList<>();
-        cobrancas.add(toResponseDto(cobranca));
+        if(cobranca.isEmpty()) {
+            response.setCobrancas(null);
+            response.setNumeroRegistros(0);
+        } else {
+            List<CobrancaDto> cobrancas = new ArrayList<>();
+            cobrancas.add(toResponseDto(cobranca.get()));
 
-        response.setCobrancas(cobrancas);
-        response.setNumeroRegistros(1);
+            response.setCobrancas(cobrancas);
+            response.setNumeroRegistros(1);
+        }
 
         return response;
     }
 
-    public ConsultarCobrancaResponseDto consultarCobrancaPeriodoAno(Long idUsuario, LocalDate dataInicio) {
+    public ConsultarCobrancaResponseDto consultarCobrancaPeriodoAno(Long idAluno, LocalDate dataInicio) {
         LocalDateTime inicio = dataInicio.atStartOfDay();
 
-        List<CobrancaEntity> cobrancasConsultadas = cobrancaRepository.findCobrancasUltimoAnoByUsuario(idUsuario, inicio);
+        List<CobrancaEntity> cobrancasConsultadas = cobrancaRepository.findCobrancasUltimoAnoByAluno(idAluno, inicio);
 
         List<CobrancaDto> listaCobrancas = cobrancasConsultadas.stream()
                                                                 .map(this::toResponseDto)

@@ -12,16 +12,15 @@ public interface CobrancaRepository extends JpaRepository<CobrancaEntity, Long> 
 
     boolean existsByCodigoInterno(Long codigoInterno);
     
-    Optional<CobrancaEntity> findTopByMatriculaAlunoUsuarioIdUsuarioOrderByCriadoEmDesc(Long idUsuario);
+    Optional<CobrancaEntity> findTopByMatriculaAlunoIdAlunoOrderByCriadoEmDesc(Long idUsuario);
 
     @Query("""
         SELECT c FROM CobrancaEntity c
         JOIN c.matricula m
         JOIN m.aluno a
-        JOIN a.usuario u
-        WHERE u.idUsuario = :idUsuario
+        WHERE a.idAluno = :idAluno
           AND c.criadoEm >= :dataInicio
         ORDER BY c.criadoEm DESC
         """)
-    List<CobrancaEntity> findCobrancasUltimoAnoByUsuario(Long idUsuario, LocalDateTime dataInicio);
+    List<CobrancaEntity> findCobrancasUltimoAnoByAluno(Long idUsuario, LocalDateTime dataInicio);
 }
