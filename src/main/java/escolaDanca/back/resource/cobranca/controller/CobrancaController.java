@@ -30,21 +30,21 @@ public class CobrancaController {
                 ResponseFactory.success(CREATED.getHttpStatus(), "Cobrança criada com sucesso"));
     }
 
-    @GetMapping(value = "/consultar/{idUsuario}")
-    public ResponseEntity<ApiResponse> consultarUltimaCobranca(@PathVariable Long idUsuario) {
+    @GetMapping(value = "/consultar/{idAluno}")
+    public ResponseEntity<ApiResponse> consultarUltimaCobranca(@PathVariable Long idAluno) {
 
-        ConsultarCobrancaResponseDto cobranca = cobrancaService.consultarUltimaCobranca(idUsuario);
+        ConsultarCobrancaResponseDto cobranca = cobrancaService.consultarUltimaCobranca(idAluno);
         return ResponseEntity.ok().body(
                 ResponseFactory.success(OK.getHttpStatus(), cobranca));
 
     }
 
-    @GetMapping(value = "/historico/{idUsuario}")
+    @GetMapping(value = "/historico/{idAluno}")
     public ResponseEntity<ApiResponse> consultarCobrancaPeriodoAno(
-            @PathVariable Long idUsuario,
+            @PathVariable Long idAluno,
             @RequestParam("dataInicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio) {
 
-        var cobrancas = cobrancaService.consultarCobrancaPeriodoAno(idUsuario, dataInicio);
+        var cobrancas = cobrancaService.consultarCobrancaPeriodoAno(idAluno, dataInicio);
         return ResponseEntity.ok().body(
                 ResponseFactory.success(OK.getHttpStatus(), cobrancas));
 
