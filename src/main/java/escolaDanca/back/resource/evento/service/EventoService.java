@@ -9,7 +9,13 @@ import escolaDanca.back.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.AbstractMap;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -49,8 +55,26 @@ public class EventoService {
         ListarEventosResponseDto response = new ListarEventosResponseDto();
         response.setEventos(eventoDtos);
         response.setNumeroEventos(eventoDtos.size());
+        response.setIdProximoEvento(getIdProximoEvento(eventoDtos));
 
         return response;
+    }
+
+    private int getIdProximoEvento(List<EventoDto> eventoDtos) {
+        LocalDateTime agora = LocalDateTime.now();
+
+        return eventoDtos.stream()
+                .map(dto -> {
+                    LocalDate data = LocalDate.parse(dto.getData());
+                    LocalTime hora = LocalTime.parse(dto.getHora());
+                    LocalDateTime momento = LocalDateTime.of(data, hora);
+
+                    return new AbstractMap.SimpleEntry<>(dto.getIdEvento(), momento);
+                })
+                .filter(entry -> entry.getValue().isAfter(agora))
+                .min(Comparator.comparing(Map.Entry::getValue))
+                .map(Map.Entry::getKey)
+                .orElse(-1);
     }
 
 

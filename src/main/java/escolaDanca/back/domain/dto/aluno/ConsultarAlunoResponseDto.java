@@ -9,5 +9,6 @@ import lombok.Setter;
 public class ConsultarAlunoResponseDto {
     private Long id;
     private String nome;
+    private String cpf;
     private ConsultarCobrancaResponseDto ultimaCobranca;
 }
