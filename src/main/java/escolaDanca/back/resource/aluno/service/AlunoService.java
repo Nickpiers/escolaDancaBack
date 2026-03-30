@@ -87,6 +87,7 @@ public class AlunoService {
         ConsultarAlunoResponseDto response = new ConsultarAlunoResponseDto();
         response.setId(aluno.getIdAluno());
         response.setNome(aluno.getNome());
+        response.setCpf(aluno.getCpf());
         response.setUltimaCobranca(ultimaCobranca);
 
         return response;

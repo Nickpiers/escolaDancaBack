@@ -11,5 +11,6 @@ public class ListarEventosResponseDto {
 
     private List<EventoDto> eventos;
     private int numeroEventos;
+    private int idProximoEvento;
 
 }
