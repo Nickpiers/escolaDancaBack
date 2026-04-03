@@ -7,6 +7,7 @@ import escolaDanca.back.domain.dto.LoginResponseDto;
 import escolaDanca.back.domain.dto.aluno.ConsultarAlunoResponseDto;
 import escolaDanca.back.domain.dto.cobranca.ConsultarCobrancaResponseDto;
 import escolaDanca.back.domain.dto.evento.ListarEventosResponseDto;
+import escolaDanca.back.domain.dto.usuario.ConsultarUsuarioResponseDto;
 import escolaDanca.back.domain.enums.Role;
 import escolaDanca.back.exception.BusinessException;
 import escolaDanca.back.resource.aluno.service.AlunoService;
@@ -52,29 +53,44 @@ public class AuthService {
     }
 
     private LoginResponseDto recuperarInfosAluno(String token, UsuarioEntity usuario) {
-        ConsultarAlunoResponseDto infoAluno = alunoService.consultarAluno(usuario.getCpf());
+        ConsultarUsuarioResponseDto infoUsuario =
+                new ConsultarUsuarioResponseDto(
+                        usuario.getIdUsuario(),
+                        usuario.getNome(),
+                        usuario.getEmail(),
+                        usuario.getCpf()
+                );
+
+        ConsultarAlunoResponseDto aluno = alunoService.consultarAluno(usuario.getCpf());
         ListarEventosResponseDto infoEventos = eventoService.listarEventos();
         ConsultarCobrancaResponseDto infoCobrancas =
-                cobrancaService.consultarCobrancaPeriodoAno(infoAluno.getId(), LocalDate.now());
+                cobrancaService.consultarCobrancaPeriodoAno(aluno.getId(), LocalDate.now());
 
         return new LoginResponseDto(
                 token,
                 TIPO_TOKEN,
                 usuario.getTipoUsuario(),
-                infoAluno,
+                infoUsuario,
                 infoEventos,
                 infoCobrancas
         );
     }
 
     private LoginResponseDto recuperarInfosAdmin(String token, UsuarioEntity usuario) {
+        ConsultarUsuarioResponseDto infoUsuario =
+                new ConsultarUsuarioResponseDto(
+                        usuario.getIdUsuario(),
+                        usuario.getNome(),
+                        usuario.getEmail(),
+                        usuario.getCpf()
+                );
         ListarEventosResponseDto infoEventos = eventoService.listarEventos();
 
         return new LoginResponseDto(
                 token,
                 TIPO_TOKEN,
                 usuario.getTipoUsuario(),
-                null,
+                infoUsuario,
                 infoEventos,
                 null
         );
