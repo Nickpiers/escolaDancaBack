@@ -19,6 +19,9 @@ public class UsuarioEntity {
     @OneToOne(mappedBy = "usuario")
     private AlunoEntity aluno;
 
+    @Column(nullable = false)
+    private String nome;
+
     @Column(nullable = false, unique = true)
     private String email;
 
