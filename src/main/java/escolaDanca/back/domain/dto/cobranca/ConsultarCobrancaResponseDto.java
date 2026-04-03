@@ -11,5 +11,6 @@ public class ConsultarCobrancaResponseDto{
 
     private List<CobrancaDto> cobrancas;
     private int numeroRegistros;
+    private Long idProximaCobranca;
 
 }

@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 public class CobrancaDto {
 
+    private Long idCobranca;
     private StatusPagamento statusPagamento;
     private BigDecimal totalCobranca;
     private BigDecimal totalPago;

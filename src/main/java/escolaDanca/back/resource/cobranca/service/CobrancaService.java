@@ -81,8 +81,10 @@ public class CobrancaService {
         return response;
     }
 
-    public ConsultarCobrancaResponseDto consultarCobrancaPeriodoAno(Long idAluno, LocalDate dataInicio) {
-        LocalDateTime inicio = dataInicio.atStartOfDay();
+    public ConsultarCobrancaResponseDto consultarCobrancaPeriodoAno(Long idAluno, LocalDate dataReferencia) {
+        Optional<CobrancaEntity> proximaCobranca = cobrancaRepository.findTopByMatriculaAlunoIdAlunoOrderByCriadoEmDesc(idAluno);
+
+        LocalDateTime inicio = dataReferencia.minusYears(1).atStartOfDay();
 
         List<CobrancaEntity> cobrancasConsultadas = cobrancaRepository.findCobrancasUltimoAnoByAluno(idAluno, inicio);
 
@@ -94,11 +96,18 @@ public class CobrancaService {
         response.setCobrancas(listaCobrancas);
         response.setNumeroRegistros(listaCobrancas.size());
 
+        if (proximaCobranca.isEmpty()) {
+            response.setIdProximaCobranca(null);
+        } else {
+            response.setIdProximaCobranca(proximaCobranca.get().getIdCobranca());
+        }
+
         return response;
     }
 
     private CobrancaDto toResponseDto(CobrancaEntity cobranca) {
         CobrancaDto dto = new CobrancaDto();
+        dto.setIdCobranca(cobranca.getIdCobranca());
         dto.setStatusPagamento(cobranca.getStatusPagamento());
         dto.setTotalCobranca(cobranca.getValorTotal());
         dto.setTotalPago(cobranca.getValorPago());
