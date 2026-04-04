@@ -2,7 +2,6 @@ package escolaDanca.back.resource.cobranca.controller;
 
 import escolaDanca.back.domain.ApiResponse;
 import escolaDanca.back.domain.ResponseFactory;
-import escolaDanca.back.domain.dto.cobranca.ConsultarCobrancaResponseDto;
 import escolaDanca.back.domain.dto.cobranca.CriarCobrancaRequestDto;
 import escolaDanca.back.resource.cobranca.service.CobrancaService;
 import lombok.RequiredArgsConstructor;
@@ -28,15 +27,6 @@ public class CobrancaController {
         cobrancaService.criarCobranca(request);
         return ResponseEntity.status(CREATED.getHttpStatus()).body(
                 ResponseFactory.success(CREATED.getHttpStatus(), "Cobrança criada com sucesso"));
-    }
-
-    @GetMapping(value = "/consultar/{idAluno}")
-    public ResponseEntity<ApiResponse> consultarUltimaCobranca(@PathVariable Long idAluno) {
-
-        ConsultarCobrancaResponseDto cobranca = cobrancaService.consultarUltimaCobranca(idAluno);
-        return ResponseEntity.ok().body(
-                ResponseFactory.success(OK.getHttpStatus(), cobranca));
-
     }
 
     @GetMapping(value = "/historico/{idAluno}")

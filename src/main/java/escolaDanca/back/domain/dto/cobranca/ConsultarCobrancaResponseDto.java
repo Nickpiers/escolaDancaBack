@@ -9,7 +9,8 @@ import java.util.List;
 @Setter
 public class ConsultarCobrancaResponseDto{
 
-    private List<CobrancaDto> cobrancas;
+    private List<CobrancaDto> cobrancasEmAberto;
+    private List<CobrancaDto> cobrancasPagas;
     private int numeroRegistros;
     private Long idProximaCobranca;
 
