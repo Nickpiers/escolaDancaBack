@@ -1,6 +1,5 @@
 package escolaDanca.back.resource.cobranca.service;
 
-import escolaDanca.back.bd.entity.AlunoEntity;
 import escolaDanca.back.bd.entity.CobrancaEntity;
 import escolaDanca.back.bd.entity.MatriculaEntity;
 import escolaDanca.back.bd.repository.CobrancaRepository;
@@ -10,6 +9,7 @@ import escolaDanca.back.domain.dto.cobranca.ConsultarCobrancaResponseDto;
 import escolaDanca.back.domain.dto.cobranca.CriarCobrancaRequestDto;
 import static escolaDanca.back.domain.enums.StatusPagamento.ABERTO;
 
+import escolaDanca.back.domain.enums.StatusPagamento;
 import escolaDanca.back.exception.BusinessException;
 import escolaDanca.back.exception.ResourceNotFoundException;
 import escolaDanca.back.utils.MascararCpf;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -61,28 +60,11 @@ public class CobrancaService {
         cobrancaRepository.save(cobranca);
     }
 
-
-    public ConsultarCobrancaResponseDto consultarUltimaCobranca(Long idAluno) {
-        Optional<CobrancaEntity> cobranca = cobrancaRepository.findTopByMatriculaAlunoIdAlunoOrderByCriadoEmDesc(idAluno);
-
-        ConsultarCobrancaResponseDto response = new ConsultarCobrancaResponseDto();
-
-        if(cobranca.isEmpty()) {
-            response.setCobrancas(null);
-            response.setNumeroRegistros(0);
-        } else {
-            List<CobrancaDto> cobrancas = new ArrayList<>();
-            cobrancas.add(toResponseDto(cobranca.get()));
-
-            response.setCobrancas(cobrancas);
-            response.setNumeroRegistros(1);
-        }
-
-        return response;
-    }
-
     public ConsultarCobrancaResponseDto consultarCobrancaPeriodoAno(Long idAluno, LocalDate dataReferencia) {
-        Optional<CobrancaEntity> proximaCobranca = cobrancaRepository.findTopByMatriculaAlunoIdAlunoOrderByCriadoEmDesc(idAluno);
+        Optional<CobrancaEntity> proximaCobranca = cobrancaRepository.findTopByMatriculaAlunoIdAlunoAndVencimentoGreaterThanEqualOrderByVencimentoAsc(
+                idAluno,
+                LocalDate.now()
+        );
 
         LocalDateTime inicio = dataReferencia.minusYears(1).atStartOfDay();
 
@@ -92,15 +74,20 @@ public class CobrancaService {
                                                                 .map(this::toResponseDto)
                                                                 .toList();
 
-        ConsultarCobrancaResponseDto response = new ConsultarCobrancaResponseDto();
-        response.setCobrancas(listaCobrancas);
-        response.setNumeroRegistros(listaCobrancas.size());
+        List<CobrancaDto> cobrancasPagas = listaCobrancas.stream()
+                .filter(c -> c.getStatusPagamento() == StatusPagamento.QUITADO)
+                .toList();
 
-        if (proximaCobranca.isEmpty()) {
-            response.setIdProximaCobranca(null);
-        } else {
-            response.setIdProximaCobranca(proximaCobranca.get().getIdCobranca());
-        }
+        List<CobrancaDto> cobrancasEmAberto = listaCobrancas.stream()
+                .filter(c -> c.getStatusPagamento() != StatusPagamento.QUITADO)
+                .toList();
+
+        ConsultarCobrancaResponseDto response = new ConsultarCobrancaResponseDto();
+        response.setNumeroRegistros(listaCobrancas.size());
+        response.setCobrancasPagas(cobrancasPagas);
+        response.setCobrancasEmAberto(cobrancasEmAberto);
+
+        response.setIdProximaCobranca(proximaCobranca.map(CobrancaEntity::getIdCobranca).orElse(null));
 
         return response;
     }
