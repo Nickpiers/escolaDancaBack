@@ -1,6 +1,7 @@
 spring:
   application:
     name: back
+    
 
   datasource:
     url: ${DATABASE_URL}
@@ -18,3 +19,6 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
+  
+server:
+  port: ${PORT:8080}
