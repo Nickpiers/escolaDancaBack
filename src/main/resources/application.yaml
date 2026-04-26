@@ -3,9 +3,9 @@ spring:
     name: back
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/escoladanca
-    username: postgres
-    password: nicolasjp123
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
 
   jpa:
     hibernate:
@@ -16,5 +16,5 @@ spring:
         format_sql: true
 
 jwt:
-  secret: esoladanca-2026-backend-jwt-secret-KEY-VERY-STRONG-256
-  expiration: 7200000
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
