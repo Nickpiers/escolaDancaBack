@@ -12,5 +12,7 @@ public interface AlunoRepository extends JpaRepository<AlunoEntity, Long> {
 
     List<AlunoEntity> findAllByAtivoTrue();
 
+    Optional<AlunoEntity> findByUsuarioIdUsuario(Long idUsuario);
+
     boolean existsByCpf(String cpf);
 }
