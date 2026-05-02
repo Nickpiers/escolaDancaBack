@@ -3,9 +3,9 @@ spring:
     name: back
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/escoladanca
-    username: postgres
-    password: nicolasjp123
+    url: jdbc:postgresql://ep-summer-sound-annsumjs-pooler.c-6.us-east-1.aws.neon.tech/escolaDanca?sslmode=require&channel_binding=require
+    username: neondb_owner
+    password: npg_r9nPR1zDvgVh
 
   jpa:
     hibernate:
@@ -18,3 +18,6 @@ spring:
 jwt:
   secret: esoladanca-2026-backend-jwt-secret-KEY-VERY-STRONG-256
   expiration: 7200000
+  
+server:
+  port: ${PORT:8080}

@@ -2,6 +2,7 @@ package escolaDanca.back.resource.cobranca.service;
 
 import escolaDanca.back.bd.entity.CobrancaEntity;
 import escolaDanca.back.bd.entity.MatriculaEntity;
+import escolaDanca.back.bd.repository.AlunoRepository;
 import escolaDanca.back.bd.repository.CobrancaRepository;
 import escolaDanca.back.bd.repository.MatriculaRepository;
 import escolaDanca.back.domain.dto.cobranca.CobrancaDto;
@@ -28,6 +29,7 @@ public class CobrancaService {
 
     private final CobrancaRepository cobrancaRepository;
     private final MatriculaRepository matriculaRepository;
+    private final AlunoRepository alunoRepository;
     private static final String URL_LINK_BOLETO = "http://escoladanca/pagamentos/boleto/";
     private static final String URL_LINK_PIX = "http://escoladanca/pagamentos/pix/";
 
@@ -60,7 +62,10 @@ public class CobrancaService {
         cobrancaRepository.save(cobranca);
     }
 
-    public ConsultarCobrancaResponseDto consultarCobrancaPeriodoAno(Long idAluno, LocalDate dataReferencia) {
+    public ConsultarCobrancaResponseDto consultarCobrancaPeriodoAno(Long idUsuario, LocalDate dataReferencia) {
+        Long idAluno = alunoRepository.findByUsuarioIdUsuario(idUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno nao encontrado")).getIdAluno();
+
         Optional<CobrancaEntity> proximaCobranca = cobrancaRepository.findTopByMatriculaAlunoIdAlunoAndVencimentoGreaterThanEqualOrderByVencimentoAsc(
                 idAluno,
                 LocalDate.now()
@@ -90,6 +95,17 @@ public class CobrancaService {
         response.setIdProximaCobranca(proximaCobranca.map(CobrancaEntity::getIdCobranca).orElse(null));
 
         return response;
+    }
+
+    public void pagarCobranca(Long idCobranca) {
+        CobrancaEntity cobranca = cobrancaRepository.findById(idCobranca)
+                .orElseThrow(() -> new BusinessException("Cobrança com esse id nao encontrada: " + idCobranca));
+
+        cobranca.setStatusPagamento(StatusPagamento.QUITADO);
+        cobranca.setValorPago(cobranca.getValorTotal());
+        cobranca.setPagoEm(LocalDateTime.now());
+
+        cobrancaRepository.save(cobranca);
     }
 
     private CobrancaDto toResponseDto(CobrancaEntity cobranca) {

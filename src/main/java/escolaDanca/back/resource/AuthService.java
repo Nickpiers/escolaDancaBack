@@ -4,7 +4,6 @@ import escolaDanca.back.bd.entity.UsuarioEntity;
 import escolaDanca.back.bd.repository.UsuarioRepository;
 import escolaDanca.back.domain.dto.LoginRequestDto;
 import escolaDanca.back.domain.dto.LoginResponseDto;
-import escolaDanca.back.domain.dto.aluno.ConsultarAlunoResponseDto;
 import escolaDanca.back.domain.dto.cobranca.ConsultarCobrancaResponseDto;
 import escolaDanca.back.domain.dto.evento.ListarEventosResponseDto;
 import escolaDanca.back.domain.dto.usuario.ConsultarUsuarioResponseDto;
@@ -61,10 +60,9 @@ public class AuthService {
                         usuario.getCpf()
                 );
 
-        ConsultarAlunoResponseDto aluno = alunoService.consultarAluno(usuario.getCpf());
         ListarEventosResponseDto infoEventos = eventoService.listarEventos();
         ConsultarCobrancaResponseDto infoCobrancas =
-                cobrancaService.consultarCobrancaPeriodoAno(aluno.getId(), LocalDate.now());
+                cobrancaService.consultarCobrancaPeriodoAno(usuario.getIdUsuario(), LocalDate.now());
 
         return new LoginResponseDto(
                 token,
