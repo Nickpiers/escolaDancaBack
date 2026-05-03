@@ -1,11 +1,16 @@
 package escolaDanca.back.resource.cobranca.service;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import escolaDanca.back.bd.entity.CobrancaEntity;
 import escolaDanca.back.bd.entity.MatriculaEntity;
 import escolaDanca.back.bd.repository.AlunoRepository;
 import escolaDanca.back.bd.repository.CobrancaRepository;
 import escolaDanca.back.bd.repository.MatriculaRepository;
 import escolaDanca.back.domain.dto.cobranca.CobrancaDto;
+import escolaDanca.back.domain.dto.cobranca.ComprovanteRequestDto;
 import escolaDanca.back.domain.dto.cobranca.ConsultarCobrancaResponseDto;
 import escolaDanca.back.domain.dto.cobranca.CriarCobrancaRequestDto;
 import static escolaDanca.back.domain.enums.StatusPagamento.ABERTO;
@@ -17,6 +22,9 @@ import escolaDanca.back.utils.MascararCpf;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -106,6 +114,83 @@ public class CobrancaService {
         cobranca.setPagoEm(LocalDateTime.now());
 
         cobrancaRepository.save(cobranca);
+    }
+
+    public byte[] gerarPdf(ComprovanteRequestDto request) {
+        Document document = new Document();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            Image logo = Image.getInstance("src/main/java/escolaDanca/back/domain/escolaDancaLogo.jpg");
+            logo.scaleToFit(100, 100);
+            logo.setAlignment(Element.ALIGN_CENTER);
+            document.add(logo);
+
+            Font tituloFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD, BaseColor.BLUE);
+            Paragraph titulo = new Paragraph("Comprovante de Pagamento", tituloFont);
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            document.add(titulo);
+
+            document.add(new Paragraph(" "));
+
+            PdfPTable tabela = new PdfPTable(2);
+            tabela.setWidthPercentage(100);
+
+            tabela.addCell(cellLabel("CPF:"));
+            tabela.addCell(cellValor(request.cpf()));
+
+            tabela.addCell(cellLabel("Cliente:"));
+            tabela.addCell(cellValor(request.nome()));
+
+            tabela.addCell(cellLabel("Email:"));
+            tabela.addCell(cellValor(request.email()));
+
+            tabela.addCell(cellLabel("Valor Total:"));
+            tabela.addCell(cellValor(request.valorTotal()));
+
+            tabela.addCell(cellLabel("Valor Pago:"));
+            tabela.addCell(cellValor(request.valorPago()));
+
+            tabela.addCell(cellLabel("Data de Pagamento:"));
+            tabela.addCell(cellValor(request.dataPagamento()));
+
+            document.add(tabela);
+
+            document.add(new Paragraph(" "));
+            Paragraph rodape = new Paragraph("Obrigado por utilizar nossos serviços!",
+                    new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC, BaseColor.GRAY));
+            rodape.setAlignment(Element.ALIGN_CENTER);
+            document.add(rodape);
+
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            document.close();
+        }
+
+        return baos.toByteArray();
+    }
+
+    private PdfPCell cellLabel(String texto) {
+        Font labelFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
+        PdfPCell cell = new PdfPCell(new Phrase(texto, labelFont));
+        cell.setBackgroundColor(new BaseColor(230, 230, 250));
+        cell.setBorder(Rectangle.NO_BORDER);
+        return cell;
+    }
+
+    private PdfPCell cellValor(String texto) {
+        Font valorFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
+        PdfPCell cell = new PdfPCell(new Phrase(texto, valorFont));
+        cell.setBorder(Rectangle.NO_BORDER);
+        return cell;
     }
 
     private CobrancaDto toResponseDto(CobrancaEntity cobranca) {

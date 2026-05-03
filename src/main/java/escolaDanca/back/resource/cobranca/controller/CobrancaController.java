@@ -2,10 +2,13 @@ package escolaDanca.back.resource.cobranca.controller;
 
 import escolaDanca.back.domain.ApiResponse;
 import escolaDanca.back.domain.ResponseFactory;
+import escolaDanca.back.domain.dto.cobranca.ComprovanteRequestDto;
 import escolaDanca.back.domain.dto.cobranca.CriarCobrancaRequestDto;
 import escolaDanca.back.resource.cobranca.service.CobrancaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,4 +50,14 @@ public class CobrancaController {
         return ResponseEntity.status(OK.getHttpStatus()).body(
                 ResponseFactory.success(OK.getHttpStatus(), "Cobrança paga com sucesso"));
     }
+
+    @PostMapping("/comprovante")
+    public ResponseEntity<byte[]> gerarComprovante(@RequestBody ComprovanteRequestDto requestDto) {
+        byte[] pdfBytes = cobrancaService.gerarPdf(requestDto);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=comprovante.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
 }
